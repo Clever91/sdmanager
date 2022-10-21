@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\v1\SignUpController;
+use App\Http\Controllers\api\v1\SignUpController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,5 +19,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get("v1/signUp/phone", [SignUpController::class, 'phone']);
+Route::post("v1/signUp/phone", [SignUpController::class, 'phone']);
 // Route::get("v1/signIn", [LoginController::class, 'signIn']);

@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->string("phone")->max(9);
-            $table->tinyInteger("code")->nullable();
+            $table->string("phone")->unique("client_unique_phone")->max(9);
+            $table->integer("code", false, true)->nullable();
             $table->timestamps();
         });
     }

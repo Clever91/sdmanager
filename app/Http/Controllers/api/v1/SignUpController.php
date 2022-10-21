@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\api\v1;
 
-use App\Http\Controllers\base\ApiController;
-use App\Models\Client;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\base\ApiController;
 
 class SignUpController extends ApiController
 {
@@ -13,11 +13,6 @@ class SignUpController extends ApiController
     {
         if (!$this->isValidBearerToken($request)) {
             $this->setErrorMessage("Invalid brearer token");
-            return $this->response(false);
-        }
-
-        if (!$request->accepts(['application/json'])) {
-            $this->setErrorMessage("Request must be json format");
             return $this->response(false);
         }
 
@@ -29,15 +24,15 @@ class SignUpController extends ApiController
             return $this->response(false);
         }
 
-        $client = Client::firstOrCreate([
+        $user = User::firstOrCreate([
             'phone' => $request->input("phone")
         ]);
-        $client->generateCode();
+        $user->generateCode();
 
         return $this->response(true, [
-            "id" => $client->id,
-            "phone" => $client->phone,
-            "code" => $client->code,
+            "id" => $user->id,
+            "phone" => $user->phone,
+            "code" => $user->code,
         ]);
     }
 
@@ -45,11 +40,6 @@ class SignUpController extends ApiController
     {
         if (!$this->isValidBearerToken($request)) {
             $this->setErrorMessage("Invalid brearer token");
-            return $this->response(false);
-        }
-
-        if (!$request->accepts(['application/json'])) {
-            $this->setErrorMessage("Request must be json format");
             return $this->response(false);
         }
 
@@ -62,19 +52,21 @@ class SignUpController extends ApiController
             return $this->response(false);
         }
 
-        $client = Client::where("phone", $request->input("phone"))->first();
-        if (is_null($client)) {
-            $this->setErrorMessage("This client is not found");
+        $user = User::where("phone", $request->input("phone"))->first();
+        if (is_null($user)) {
+            $this->setErrorMessage("This user is not found");
             return $this->response(false);
         }
-        if ($client->code !== (int) $request->input("code")) {
+        if ($user->code !== (int) $request->input("code")) {
             $this->setErrorMessage("Sorry, Given code is incorrect");
             return $this->response(false);
         }
 
-        $token = $client->createToken("sdmanager", ['api:getdata'])->plainTextToken;
+        $user->tokens()->delete();
+        $token = $user->createToken("sdmanager", ['api:getdata'])->plainTextToken;
+
         return $this->response(true, [
-            "id" => $client->id,
+            "id" => $user->id,
             "token" => $token,
         ]);
     }

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\v1\SignUpController;
+use App\Http\Controllers\api\v1\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,9 +16,12 @@ use App\Http\Controllers\api\v1\SignUpController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('v1')->group(function () {
+    Route::controller(SignUpController::class)->prefix('signUp')->group(function() {
+        Route::post("phone", 'phone');
+        Route::get("checkCode", 'checkCode');
+    });
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post("/user/password", [UserController::class, 'password']);
+    });
 });
-
-Route::post("v1/signUp/phone", [SignUpController::class, 'phone']);
-Route::get("v1/signUp/checkCode", [SignUpController::class, 'checkCode']);

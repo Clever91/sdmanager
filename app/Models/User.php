@@ -18,27 +18,21 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'phone',
+        'type',
+        'code',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    public function generateCode()
+    {
+        $this->code = rand(1000, 9999);
+        $this->save();
+    }
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function setPassword($pwd)
+    {
+        $this->password = bcrypt($pwd);
+        $this->save();
+    }
 }

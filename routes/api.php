@@ -20,4 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post("v1/signUp/phone", [SignUpController::class, 'phone']);
-// Route::get("v1/signIn", [LoginController::class, 'signIn']);
+Route::get("v1/signUp/checkCode", [SignUpController::class, 'checkCode']);

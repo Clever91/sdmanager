@@ -30,4 +30,20 @@ class UserController extends ApiController
             "id" => $user->id
         ]);
     }
+
+    public function signOut(Request $request)
+    {
+        $user = User::find($request->input("id"));
+        if (is_null($user)) {
+            $this->setErrorMessage("The user is not found");
+            return $this->response(false);
+        }
+
+        $user->tokens()->delete();
+
+        return $this->response(true, [
+            "id" => $user->id,
+            "token" => null,
+        ]);
+    }
 }

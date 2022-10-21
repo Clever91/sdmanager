@@ -35,4 +35,9 @@ class User extends Authenticatable
         $this->password = bcrypt($pwd);
         $this->save();
     }
+
+    public function validatePassword($pwd)
+    {
+        return $this->password === bcrypt($pwd);
+    }
 }

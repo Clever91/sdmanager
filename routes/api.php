@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\api\v1\SignUpController;
 use App\Http\Controllers\api\v1\SignInController;
 use App\Http\Controllers\api\v1\UserController;
 use App\Http\Controllers\api\v1\DashboardController;
@@ -19,17 +18,20 @@ use App\Http\Controllers\api\v1\DashboardController;
 */
 
 Route::prefix('v1')->group(function () {
-    Route::controller(SignUpController::class)->prefix('signUp')->group(function() {
-        Route::post("phone", 'phone');
-        Route::get("checkCode", 'checkCode');
+    // guest
+    Route::prefix('user')->group(function () {
+        Route::controller(UserController::class)->group(function() {
+            Route::post("signUp", 'create');
+        });
+        Route::controller(SignInController::class)->group(function () {
+            Route::post("signIn", 'index');
+        });
     });
+    // middleware
     Route::middleware('auth:sanctum')->group(function () {
         Route::controller(UserController::class)->prefix('user')->group(function () {
             Route::post("password", 'password');
             Route::delete("signOut", 'signOut');
-        });
-        Route::controller(SignInController::class)->group(function () {
-            Route::post("signIn", 'index');
         });
         Route::controller(DashboardController::class)->prefix('dashboard')->group(function () {
             Route::get("", 'index');

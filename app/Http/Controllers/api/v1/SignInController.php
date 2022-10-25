@@ -16,7 +16,7 @@ class SignInController extends ApiController
             return $this->response(false);
         }
 
-        if ($user->validatePassword($request->input("password"))) {
+        if (!$user->isValidPassword($request->input("password"))) {
             $this->setErrorMessage("The phone number or the password is incorrect");
             return $this->response(false);
         }

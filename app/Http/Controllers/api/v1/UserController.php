@@ -9,6 +9,46 @@ use App\Models\User;
 
 class UserController extends ApiController
 {
+    public function create(Request $request)
+    {
+        $phone = $request->input("phone");
+        $password = $request->input("password");
+        $uid = $request->input("uid");
+
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|confirmed|min:3',
+            'phone' => 'required',
+            'uid' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            $this->setErrorData($validator->errors());
+            return $this->response(false);
+        }
+
+        // check firebase
+
+        $user = User::where(['phone' => $phone, 'uid' => $uid])->first();
+        if (!is_null($user)) {
+            $this->setErrorMessage("This user is already exists");
+            return $this->response(false);
+        }
+
+
+        $user = User::create([
+            'phone' => $phone,
+            'uid' => $uid,
+            'password' => $password,
+            'type' => User::TYPE_CLIENT
+        ]);
+        $user->setPassword($password);
+
+        return $this->response(true, [
+            "id" => $user->id,
+            "phone" => $user->phone
+        ]);
+    }
+
     public function password(Request $request)
     {
         $user = User::find($request->input("id"));
@@ -18,13 +58,18 @@ class UserController extends ApiController
         }
 
         $validator = Validator::make($request->all(), [
-            'password' => 'required|confirmed',
+            'old_password' => 'required',
+            'new_password' => 'required|confirmed|min:3',
         ]);
         if ($validator->fails()) {
             $this->setErrorData($validator->errors());
             return $this->response(false);
         }
-        $user->setPassword($request->input("password"));
+        if (!$user->isValidPassword($request->input("old_password"))) {
+            $this->setErrorMessage("Given old password is incorrect");
+            return $this->response(false);
+        }
+        $user->setPassword($request->input("new_password"));
 
         return $this->response(true, [
             "id" => $user->id

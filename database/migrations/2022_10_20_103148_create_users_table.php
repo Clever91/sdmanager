@@ -15,11 +15,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string("phone")->unique("client_unique_phone")->max(9);
+            $table->string("phone");
+            $table->string("password");
+            $table->string("uid")->nullable();
             $table->string("type")->default("client")->comment("admin,operator,client");
-            $table->string("password")->nullable();
-            $table->integer("code", false, true)->nullable();
             $table->timestamps();
+            $table->unique(["phone", "uid"], 'users_unique_columns');
         });
     }
 

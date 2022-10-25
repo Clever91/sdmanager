@@ -10,16 +10,6 @@ class ApiController extends Controller
     private $error = [];
     private $result = [];
 
-    private function envBearerToken()
-    {
-        return env("API_BEAR_TOKEN", "sdmanager__bearer_token");
-    }
-
-    public function isValidBearerToken(Request $request)
-    {
-        return $this->envBearerToken() == $request->bearerToken();
-    }
-
     public function setErrorMessage($msg)
     {
         $this->error["message"] = $msg;

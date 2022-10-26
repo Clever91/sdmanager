@@ -5,6 +5,8 @@ namespace App\Http\Controllers\api\v1;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\base\ApiController;
+use Kreait\Laravel\Firebase\Facades\Firebase;
+use Kreait\Firebase\Exception\Auth\UserNotFound;
 use App\Models\User;
 
 class UserController extends ApiController
@@ -26,14 +28,24 @@ class UserController extends ApiController
             return $this->response(false);
         }
 
-        // check firebase
-
-        $user = User::where(['phone' => $phone, 'uid' => $uid])->first();
-        if (!is_null($user)) {
-            $this->setErrorMessage("This user is already exists");
+        // Return an instance of the Auth component for the default Firebase project
+        $auth = Firebase::project('app')->auth();
+        try {
+            $user = $auth->getUser($uid);
+        } catch (UserNotFound $e) {
+            $this->setErrorMessage($e->getMessage());
             return $this->response(false);
         }
 
+        $user = User::where(['phone' => $phone, 'uid' => $uid])->first();
+        if (!is_null($user)) {
+            $user->setPassword($password);
+            return $this->response(true, [
+                "id" => $user->id,
+                "uid" => $user->uid,
+                "phone" => $user->phone
+            ]);
+        }
 
         $user = User::create([
             'phone' => $phone,

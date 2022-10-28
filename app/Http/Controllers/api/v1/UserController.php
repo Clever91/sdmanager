@@ -61,9 +61,7 @@ class UserController extends ApiController
 
     public function password(Request $request)
     {
-        $user = User::find($request->input("user_id"));
-        if (is_null($user)) {
-            $this->setErrorMessage("This user is not found");
+        if (($user = $this->userExists($request)) === null) {
             return $this->response(false);
         }
 
@@ -88,9 +86,7 @@ class UserController extends ApiController
 
     public function signOut(Request $request)
     {
-        $user = User::find($request->input("user_id"));
-        if (is_null($user)) {
-            $this->setErrorMessage("The user is not found");
+        if (($user = $this->userExists($request)) === null) {
             return $this->response(false);
         }
 

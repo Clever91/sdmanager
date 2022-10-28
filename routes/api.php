@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\v1\SignInController;
 use App\Http\Controllers\api\v1\UserController;
 use App\Http\Controllers\api\v1\DashboardController;
+use App\Http\Controllers\api\v1\DomainController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +35,11 @@ Route::prefix('v1')->group(function () {
         });
         Route::controller(DashboardController::class)->prefix('dashboard')->group(function () {
             Route::get("", 'index');
+        });
+        Route::controller(DomainController::class)->prefix('domain')->group(function () {
+            Route::post("add", 'add');
+            Route::get("list", 'list');
+            Route::delete("delete", 'delete');
         });
     });
 });

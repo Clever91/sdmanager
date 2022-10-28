@@ -19,7 +19,7 @@ class UserController extends ApiController
 
         $validator = Validator::make($request->all(), [
             'password' => 'required|confirmed|min:3',
-            'phone' => 'required',
+            'phone' => 'required|numeric|regex:/[0-9]{7,32}/',
             'uid' => 'required'
         ]);
 
@@ -29,7 +29,7 @@ class UserController extends ApiController
         }
 
         // Return an instance of the Auth component for the default Firebase project
-        $auth = Firebase::project('sd-manager-4e835')->auth();
+        $auth = Firebase::project('app')->auth();
         try {
             $user = $auth->getUser($uid);
         } catch (UserNotFound $e) {
@@ -38,32 +38,30 @@ class UserController extends ApiController
         }
 
         $user = User::where(['phone' => $phone, 'uid' => $uid])->first();
-        if (!is_null($user)) {
-            $user->setPassword($password);
-            return $this->response(true, [
-                "id" => $user->id,
-                "uid" => $user->uid,
-                "phone" => $user->phone
+        if (is_null($user)) {
+            $user = User::create([
+                'phone' => $phone,
+                'uid' => $uid,
+                'password' => $password,
+                'type' => User::TYPE_CLIENT
             ]);
         }
 
-        $user = User::create([
-            'phone' => $phone,
-            'uid' => $uid,
-            'password' => $password,
-            'type' => User::TYPE_CLIENT
-        ]);
         $user->setPassword($password);
+        $user->tokens()->delete();
+        $token = $user->createToken("sdmanager", ['api:getdata'])->plainTextToken;
 
         return $this->response(true, [
-            "id" => $user->id,
-            "phone" => $user->phone
+            "user_id" => $user->id,
+            "uid" => $user->uid,
+            "phone" => $user->phone,
+            "token" => $token
         ]);
     }
 
     public function password(Request $request)
     {
-        $user = User::find($request->input("id"));
+        $user = User::find($request->input("user_id"));
         if (is_null($user)) {
             $this->setErrorMessage("This user is not found");
             return $this->response(false);
@@ -90,7 +88,7 @@ class UserController extends ApiController
 
     public function signOut(Request $request)
     {
-        $user = User::find($request->input("id"));
+        $user = User::find($request->input("user_id"));
         if (is_null($user)) {
             $this->setErrorMessage("The user is not found");
             return $this->response(false);

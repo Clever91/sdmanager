@@ -40,6 +40,7 @@ Route::prefix('v1')->group(function () {
             Route::post("add", 'add');
             Route::get("list", 'list');
             Route::delete("delete", 'delete');
+            Route::post("refresh/token", 'refreshToken');
         });
     });
 });

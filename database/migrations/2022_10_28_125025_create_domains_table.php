@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->bigInteger("user_id", false, true);
             $table->string("domain");
-            $table->string("login");
             $table->string("url");
             $table->unique(["user_id", "domain"], "domain_user_id_unique");
             $table->timestamps();

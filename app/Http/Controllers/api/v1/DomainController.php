@@ -14,8 +14,7 @@ class DomainController extends ApiController
     {
         $validator = Validator::make($request->all(), [
             'domain' => 'required',
-            'login' => 'required',
-            'password' => 'required',
+            'phone' => 'required',
             'user_id' => 'required'
         ]);
 
@@ -44,11 +43,10 @@ class DomainController extends ApiController
                     $params = [
                         "jsonrpc" => "2.0",
                         "id" => 9999,
-                        "method" => "auth",
+                        "method" => "authByPhone",
                         "params" => []
                     ];
-                    $params["params"]["login"] = $request->input("login");
-                    $params["params"]["password"] = $request->input("password");
+                    $params["params"]["phone"] = $request->input("phone");
                     // start making request
                     $res = Http::post($url."/api3/manager/index", $params);
                     if ($res->ok()) {
@@ -58,10 +56,9 @@ class DomainController extends ApiController
                         } else if (isset($body["result"]) && !empty($body["result"])) {
                             $model = Domain::where(["domain" => $domain, "user_id" => $user_id])->first();
                             if (is_null($model)) {
-                                Domain::create([
+                                $model = Domain::create([
                                     "user_id" => $user_id,
                                     "domain" => $domain,
-                                    "login" => $request->input("login"),
                                     "url" => $url,
                                 ]);
                             }
@@ -91,7 +88,7 @@ class DomainController extends ApiController
 
         $domains = Domain::where([
             "user_id" => $request->input("user_id")
-        ])->select("domain", "url", "login")->get();
+        ])->select("domain", "url")->get();
         return $this->response(true, $domains);
     }
 
@@ -111,5 +108,54 @@ class DomainController extends ApiController
         }
         $domain->delete();
         return $this->response(true);
+    }
+
+    public function refreshToken(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'domain' => 'required',
+            'user_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            $this->setErrorData($validator->errors());
+            return $this->response(false);
+        }
+
+        if (is_null($user = $this->userExists($request))) {
+            return $this->response(false);
+        }
+
+        $domain = Domain::where(["user_id" => $user->id, "domain" => $request->input("domain")])->first();
+        if (is_null($domain)) {
+            $this->setErrorMessage("Given domain doesn`t belong to given user");
+            return $this->response(false);
+        }
+        // make request to get token
+        $params = [
+            "jsonrpc" => "2.0",
+            "id" => 9999,
+            "method" => "authByPhone",
+            "params" => []
+        ];
+        $params["params"]["phone"] = $user->phone;
+        $errorData = [];
+        try {
+            $res = Http::post($domain->url."/api3/manager/index", $params);
+            if ($res->ok()) {
+                $body = $res->json();
+                if (isset($body["error"]) && !empty($body["error"])) {
+                    $errorData = $body["error"];
+                } else if (isset($body["result"]) && !empty($body["result"])) {
+                    return $this->response(true, $body["result"]);
+                }
+            }
+        } catch (\Throwable $th) {
+            $this->setErrorMessage($th->getMessage());
+            return $this->response(false);
+        }
+
+        $this->setErrorData($errorData);
+        return $this->response(false);
     }
 }

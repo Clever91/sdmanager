@@ -63,7 +63,10 @@ class DomainController extends ApiController
                                 ]);
                             }
                             $result["access"] = $body["result"];
-                            $result["server"] = $model->pluck("domain", "url");
+                            $result["server"] = [
+                                "domain" => $domain,
+                                "url" => $url
+                            ];
                             return $this->response(true, $result);
                         }
                     }

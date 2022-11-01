@@ -62,7 +62,9 @@ class DomainController extends ApiController
                                     "url" => $url,
                                 ]);
                             }
-                            return $this->response(true, $body["result"]);
+                            $result["access"] = $body["result"];
+                            $result["domain"] = $model;
+                            return $this->response(true, $result);
                         }
                     }
                 } else {

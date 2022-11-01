@@ -40,6 +40,7 @@ class DomainController extends ApiController
                 if ($body["status"] == "success") {
                     // make request to get token
                     $url = $body["url"];
+                    $server_name = $body["name"];
                     $params = [
                         "jsonrpc" => "2.0",
                         "id" => 9999,
@@ -63,7 +64,11 @@ class DomainController extends ApiController
                                 ]);
                             }
                             $result["access"] = $body["result"];
-                            $result["domain"] = $model;
+                            $result["server"] = [
+                                "name" => $server_name,
+                                "domain" => $domain,
+                                "url" => $url
+                            ];
                             return $this->response(true, $result);
                         }
                     }

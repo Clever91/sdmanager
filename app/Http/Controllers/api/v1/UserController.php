@@ -19,7 +19,7 @@ class UserController extends ApiController
 
         $validator = Validator::make($request->all(), [
             'password' => 'required|confirmed|min:3',
-            'phone' => 'required|numeric|regex:/[^0-9]{7,32}/',
+            'phone' => 'required|numeric|regex:/^[0-9]*$/',
             'uid' => 'required'
         ]);
 
@@ -40,7 +40,7 @@ class UserController extends ApiController
         $user = User::where(['phone' => $phone, 'uid' => $uid])->first();
         if (is_null($user)) {
             $user = User::create([
-                'phone' => $phone,
+                'phone' => preg_replace("/[^0-9]/", "", $phone),
                 'uid' => $uid,
                 'password' => $password,
                 'type' => User::TYPE_CLIENT

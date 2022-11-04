@@ -22,6 +22,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('user')->group(function () {
         Route::controller(UserController::class)->group(function() {
             Route::post("signUp", 'create');
+            Route::post("exist", 'exist');
         });
         Route::controller(SignInController::class)->group(function () {
             Route::post("signIn", 'index');

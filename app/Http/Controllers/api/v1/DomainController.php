@@ -87,12 +87,12 @@ class DomainController extends ApiController
 
     public function list(Request $request)
     {
-        if (is_null($this->userExists($request))) {
+        if (is_null($user = $this->userExists($request))) {
             return $this->response(false);
         }
 
         $domains = Domain::where([
-            "user_id" => $request->input("user_id")
+            "user_id" => $user->id,
         ])->select("domain", "url")->get();
         return $this->response(true, $domains);
     }

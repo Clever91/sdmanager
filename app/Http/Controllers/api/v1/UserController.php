@@ -97,4 +97,42 @@ class UserController extends ApiController
             "token" => null,
         ]);
     }
+
+    public function exist(Request $request)
+    {
+        $phone = $request->input("phone");
+        $uid = $request->input("uid");
+
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|numeric|regex:/^[0-9]*$/',
+            'uid' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            $this->setErrorData($validator->errors());
+            return $this->response(false);
+        }
+
+        // Return an instance of the Auth component for the default Firebase project
+        $auth = Firebase::project('app')->auth();
+        try {
+            $user = $auth->getUser($uid);
+        } catch (UserNotFound $e) {
+            $this->setErrorMessage($e->getMessage());
+            return $this->response(false);
+        }
+
+        $user = User::where(['phone' => $phone, 'uid' => $uid])->first();
+        if (is_null($user)) {
+            return $this->response(false, [
+                "user_id" => null,
+                "uid" => null,
+            ]);
+        }
+
+        return $this->response(true, [
+            "user_id" => $user->id,
+            "uid" => $user->uid,
+        ]);
+    }
 }

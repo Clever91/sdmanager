@@ -80,7 +80,7 @@ class UserController extends ApiController
         $user->setPassword($request->input("new_password"));
 
         return $this->response(true, [
-            "id" => $user->id
+            "user_id" => $user->id
         ]);
     }
 
@@ -93,7 +93,7 @@ class UserController extends ApiController
         $user->tokens()->delete();
 
         return $this->response(true, [
-            "id" => $user->id,
+            "user_id" => $user->id,
             "token" => null,
         ]);
     }

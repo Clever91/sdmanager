@@ -5,6 +5,7 @@ use App\Http\Controllers\api\v1\SignInController;
 use App\Http\Controllers\api\v1\UserController;
 use App\Http\Controllers\api\v1\DashboardController;
 use App\Http\Controllers\api\v1\DomainController;
+use App\Http\Controllers\api\v1\FeedbackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,10 @@ Route::prefix('v1')->group(function () {
             Route::get("list", 'list');
             Route::delete("delete", 'delete');
             Route::post("refresh/token", 'refreshToken');
+        });
+        Route::controller(FeedbackController::class)->prefix('feedback')->group(function () {
+            Route::post("create", "create");
+            Route::get("list", "list");
         });
     });
 });

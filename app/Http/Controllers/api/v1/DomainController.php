@@ -32,7 +32,7 @@ class DomainController extends ApiController
             $errorData = [];
             $domain = $request->input("domain");
             $user_id = $request->input("user_id");
-            $url = "https://server.salesdoc.io/api/add/index.php?code={$domain}";
+            $url = "https://server.salesdoc.io/api/add/index.php?add=sdmanager&code={$domain}";
             $response = Http::get($url);
             if ($response->ok()) {
                 // if it is successfully, so make request to get accesss token
@@ -48,7 +48,7 @@ class DomainController extends ApiController
                     ];
                     $params["params"]["phone"] = $request->input("phone");
                     // start making request
-                    $res = Http::post($url."/api3/manager/index", $params);
+                    $res = Http::post($url . "/api3/manager/index", $params);
                     if ($res->ok()) {
                         $body = $res->json();
                         if (isset($body["error"]) && !empty($body["error"])) {
@@ -146,7 +146,7 @@ class DomainController extends ApiController
         $params["params"]["phone"] = $user->phone;
         $errorData = [];
         try {
-            $res = Http::post($domain->url."/api3/manager/index", $params);
+            $res = Http::post($domain->url . "/api3/manager/index", $params);
             if ($res->ok()) {
                 $body = $res->json();
                 if (isset($body["error"]) && !empty($body["error"])) {

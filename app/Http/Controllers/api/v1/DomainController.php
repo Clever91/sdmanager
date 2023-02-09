@@ -41,15 +41,20 @@ class DomainController extends ApiController
                 if ($body["status"] == "success") {
                     // make request to get token
                     $url = $body["url"];
+                    $full_url = $url . "/api3/manager/index";
                     $params = [
                         "jsonrpc" => "2.0",
                         "id" => 9999,
-                        "method" => (strtolower($type) == "client") ? "authByClient" : "authByPhone",
+                        "method" => "authByPhone",
                         "params" => []
                     ];
+                    if (strtolower($type) === "client") {
+                        $params["method"] = "auth";
+                        $full_url = $url . "/api3/sdClient/index";
+                    }
                     $params["params"]["phone"] = $request->input("phone");
                     // start making request
-                    $res = Http::post($url . "/api3/manager/index", $params);
+                    $res = Http::post($full_url, $params);
                     if ($res->ok()) {
                         $body = $res->json();
                         if (isset($body["error"]) && !empty($body["error"])) {
@@ -139,16 +144,21 @@ class DomainController extends ApiController
             return $this->response(false);
         }
         // make request to get token
+        $full_url = $domain->url . "/api3/manager/index";
         $params = [
             "jsonrpc" => "2.0",
             "id" => 9999,
-            "method" => (strtolower($type) == "client") ? "authByClient" : "authByPhone",
+            "method" => "authByPhone",
             "params" => []
         ];
+        if (strtolower($type) == "client") {
+            $params["method"] = "auth";
+            $full_url = $domain->url . "/api3/sdClient/index";
+        }
         $params["params"]["phone"] = $user->phone;
         $errorData = [];
         try {
-            $res = Http::post($domain->url . "/api3/manager/index", $params);
+            $res = Http::post($full_url, $params);
             if ($res->ok()) {
                 $body = $res->json();
                 if (isset($body["error"]) && !empty($body["error"])) {

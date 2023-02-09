@@ -32,6 +32,7 @@ class DomainController extends ApiController
             $errorData = [];
             $domain = $request->input("domain");
             $user_id = $request->input("user_id");
+            $type = $request->input("type", "user");
             $url = "https://server.salesdoc.io/api/add/index.php?add=sdmanager&code={$domain}";
             $response = Http::get($url);
             if ($response->ok()) {
@@ -43,7 +44,7 @@ class DomainController extends ApiController
                     $params = [
                         "jsonrpc" => "2.0",
                         "id" => 9999,
-                        "method" => "authByPhone",
+                        "method" => (strtolower($type) == "client") ? "authByClient" : "authByPhone",
                         "params" => []
                     ];
                     $params["params"]["phone"] = $request->input("phone");
@@ -131,6 +132,7 @@ class DomainController extends ApiController
             return $this->response(false);
         }
 
+        $type = $request->input("type", "user");
         $domain = Domain::where(["user_id" => $user->id, "domain" => $request->input("domain")])->first();
         if (is_null($domain)) {
             $this->setErrorMessage("Given domain doesn`t belong to given user");
@@ -140,7 +142,7 @@ class DomainController extends ApiController
         $params = [
             "jsonrpc" => "2.0",
             "id" => 9999,
-            "method" => "authByPhone",
+            "method" => (strtolower($type) == "client") ? "authByClient" : "authByPhone",
             "params" => []
         ];
         $params["params"]["phone"] = $user->phone;

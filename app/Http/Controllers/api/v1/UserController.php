@@ -59,6 +59,52 @@ class UserController extends ApiController
         ]);
     }
 
+    public function register(Request $request)
+    {
+        $phone = $request->input("phone");
+        $uid = $request->input("uid");
+
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|numeric|regex:/^[0-9]*$/',
+            'uid' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            $this->setErrorData($validator->errors());
+            return $this->response(false);
+        }
+
+        // Return an instance of the Auth component for the default Firebase project
+        $auth = Firebase::project('app')->auth();
+        try {
+            $user = $auth->getUser($uid);
+        } catch (UserNotFound $e) {
+            $this->setErrorMessage($e->getMessage());
+            return $this->response(false);
+        }
+
+        $user = User::where(['phone' => $phone, 'uid' => $uid])->first();
+        if (is_null($user)) {
+            $user = User::create([
+                'phone' => preg_replace("/[^0-9]/", "", $phone),
+                'uid' => $uid,
+                'password' => $phone,
+                'type' => User::TYPE_CLIENT
+            ]);
+        }
+
+        $user->setPassword($phone);
+        $user->tokens()->delete();
+        $token = $user->createToken("sdclient", ['api:getdata'])->plainTextToken;
+
+        return $this->response(true, [
+            "user_id" => $user->id,
+            "uid" => $user->uid,
+            "phone" => $user->phone,
+            "token" => $token
+        ]);
+    }
+
     public function password(Request $request)
     {
         if (($user = $this->userExists($request)) === null) {

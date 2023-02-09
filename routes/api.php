@@ -21,8 +21,9 @@ use App\Http\Controllers\api\v1\FeedbackController;
 Route::prefix('v1')->group(function () {
     // guest
     Route::prefix('user')->group(function () {
-        Route::controller(UserController::class)->group(function() {
+        Route::controller(UserController::class)->group(function () {
             Route::post("signUp", 'create');
+            Route::post("register", 'register');
             Route::post("exist", 'exist');
         });
         Route::controller(SignInController::class)->group(function () {

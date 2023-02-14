@@ -79,7 +79,7 @@ class UserController extends ApiController
         }
 
         // Return an instance of the Auth component for the default Firebase project
-        $auth = Firebase::project('app')->auth();
+        $auth = Firebase::project('sdmanager')->auth();
         try {
             $user = $auth->getUser($uid);
         } catch (UserNotFound $e) {
@@ -164,7 +164,7 @@ class UserController extends ApiController
         }
 
         // Return an instance of the Auth component for the default Firebase project
-        $auth = Firebase::project('app')->auth();
+        $auth = Firebase::project('sdmanager')->auth();
         try {
             $user = $auth->getUser($uid);
         } catch (UserNotFound $e) {

@@ -13,9 +13,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    const TYPE_ADMIN = "admin";
-    const TYPE_OPERATOR = "operator";
-    const TYPE_CLIENT = "client";
+    const TYPE_MANAGER = "sd_manager";
+    const TYPE_CLIENT = "sd_client";
 
     /**
      * The attributes that are mass assignable.
@@ -38,5 +37,10 @@ class User extends Authenticatable
     public function isValidPassword($pwd)
     {
         return Hash::check($pwd, $this->password);
+    }
+
+    public function isManager()
+    {
+        return $this->type === self::TYPE_MANAGER;
     }
 }

@@ -29,7 +29,7 @@ class UserController extends ApiController
         }
 
         // Return an instance of the Auth component for the default Firebase project
-        $auth = Firebase::project('app')->auth();
+        $auth = Firebase::project('sdmanager')->auth();
         try {
             $user = $auth->getUser($uid);
         } catch (UserNotFound $e) {
@@ -38,12 +38,16 @@ class UserController extends ApiController
         }
 
         $user = User::where(['phone' => $phone, 'uid' => $uid])->first();
+        if (!is_null($user) && !$user->isManager()) {
+            $this->setErrorMessage("Sorry, you cannot sign in because this phone is already registered as client");
+            return $this->response(false);
+        }
         if (is_null($user)) {
             $user = User::create([
                 'phone' => preg_replace("/[^0-9]/", "", $phone),
                 'uid' => $uid,
                 'password' => $password,
-                'type' => User::TYPE_CLIENT
+                'type' => User::TYPE_MANAGER
             ]);
         }
 
@@ -89,7 +93,7 @@ class UserController extends ApiController
                 'phone' => preg_replace("/[^0-9]/", "", $phone),
                 'uid' => $uid,
                 'password' => $phone,
-                'type' => User::TYPE_CLIENT
+                'type' => User::TYPE_MANAGER
             ]);
         }
 

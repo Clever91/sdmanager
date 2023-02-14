@@ -18,7 +18,7 @@ class UserController extends ApiController
         $type = $request->input("type");
 
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|numeric|regex:/^[0-9]{12}*$/',
+            'phone' => 'required|numeric|min:12|regex:/^[0-9]*$/',
             'uid' => 'required',
             'type' => 'required',
         ]);

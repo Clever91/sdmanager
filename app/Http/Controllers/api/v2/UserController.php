@@ -45,7 +45,7 @@ class UserController extends ApiController
         }
 
         $user = User::where(['uid' => $uid])->first();
-        if ($user->phone !== $phone) {
+        if (!is_null($user) && $user->phone !== $phone) {
             $this->setErrorMessage("Sorry, this uid has other phone number");
             return $this->response(false);
         }

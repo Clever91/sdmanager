@@ -8,25 +8,14 @@ use Illuminate\Support\Facades\Validator;
 use Kreait\Firebase\Exception\Auth\UserNotFound;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use App\Http\Controllers\base\ApiController;
+use Throwable;
 
 class UserController extends ApiController
 {
     public function signIn(Request $request)
     {
-        $phone = $request->input("phone");
-        $uid = $request->input("uid");
+        $jwtToken = $request->input("token");
         $type = $request->input("type");
-
-        $validator = Validator::make($request->all(), [
-            'phone' => 'required|numeric|digits:12|regex:/^[0-9]*$/',
-            'uid' => 'required',
-            'type' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            $this->setErrorData($validator->errors());
-            return $this->response(false);
-        }
 
         if (!in_array($type, [USER::TYPE_CLIENT, User::TYPE_MANAGER])) {
             $this->setErrorMessage("The type is incorrect format: (sd_manager, sd_client)");
@@ -37,13 +26,20 @@ class UserController extends ApiController
         if ($type === User::TYPE_CLIENT)
             $firebase_project = "sdclient";
         $auth = Firebase::project($firebase_project)->auth();
+
         try {
+            $verifiedIdToken = $auth->verifyIdToken($jwtToken);
+            $uid = $verifiedIdToken->claims()->get('sub');
             $user = $auth->getUser($uid);
-        } catch (UserNotFound $e) {
+            // get phone from firebase
+            $phone = $verifiedIdToken->claims()->get('phone_number');
+            $phone = str_replace("+", "", $phone);
+        } catch (Throwable $e) {
             $this->setErrorMessage($e->getMessage());
             return $this->response(false);
         }
 
+        // ikkita firebase projectda bir xil uid bo'ladigan bo'lsa, muamo bo'lishi mumkin
         $user = User::where(['uid' => $uid])->first();
         if (!is_null($user) && $user->phone !== $phone) {
             $this->setErrorMessage("Sorry, this uid has other phone number");

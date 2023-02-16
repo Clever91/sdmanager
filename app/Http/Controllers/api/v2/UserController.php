@@ -4,8 +4,6 @@ namespace App\Http\Controllers\api\v2;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Kreait\Firebase\Exception\Auth\UserNotFound;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use App\Http\Controllers\base\ApiController;
 use Throwable;

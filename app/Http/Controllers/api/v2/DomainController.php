@@ -36,15 +36,21 @@ class DomainController extends ApiController
             $response = Http::get($url);
             if ($response->ok()) {
                 $body = $response->json();
-                $model = Domain::where(["domain" => $domain, "user_id" => $user_id])->first();
-                if (is_null($model)) {
-                    $model = Domain::create([
-                        "user_id" => $user_id,
-                        "domain" => $domain,
-                        "url" => $body["url"],
-                    ]);
+                if ($body["status"] === "success") {
+                    $model = Domain::where(["domain" => $domain, "user_id" => $user_id])->first();
+                    if (is_null($model)) {
+                        $model = Domain::create([
+                            "user_id" => $user_id,
+                            "domain" => $domain,
+                            "url" => $body["url"],
+                        ]);
+                    }
+                    return $this->response(true);
                 }
-                return $this->response(true);
+                if ($body["status"] === "error") {
+                    $this->setErrorMessage($body["message"]);
+                    return $this->response(false);
+                }
             } else {
                 $errorData["domain"] = "Given domain is incorrect";
             }

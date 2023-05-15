@@ -33,11 +33,24 @@ class DomainController extends ApiController
             $domain = $request->input("domain");
             $user_id = $request->input("user_id");
             $type = $request->input("type", "user");
-            $url = "https://server.salesdoc.io/api/add/index.php?add=sdmanager&code={$domain}";
+
+            $appType = "sdmanager";
+            if (strtolower($type) === "client") {
+                $appType = "sdclient";
+            }
+            $url = "https://server.salesdoc.io/api/add/index.php?add={$appType}&code={$domain}";
             $response = Http::get($url);
             if ($response->ok()) {
                 // if it is successfully, so make request to get accesss token
                 $body = $response->json();
+
+                // we should check if this server is countrysale
+                // and app type is sdclient, so return error
+                if (!empty($body["type"]) && $body["type"] == "countrysale") {
+                    $this->setErrorMessage("This app doesn't have access to countrysale server");
+                    return $this->response(false);
+                }
+
                 if ($body["status"] == "success") {
                     // make request to get token
                     $url = $body["url"];

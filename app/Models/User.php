@@ -43,4 +43,9 @@ class User extends Authenticatable
     {
         return $this->type === self::TYPE_MANAGER;
     }
+
+    public function isClient()
+    {
+        return $this->type === self::TYPE_CLIENT;
+    }
 }

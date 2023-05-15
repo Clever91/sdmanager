@@ -23,7 +23,7 @@ class DomainController extends ApiController
             return $this->response(false);
         }
 
-        if (is_null($this->userExists($request))) {
+        if (is_null($user = $this->userExists($request))) {
             return $this->response(false);
         }
 
@@ -32,10 +32,23 @@ class DomainController extends ApiController
             $errorData = [];
             $domain = $request->input("domain");
             $user_id = $request->input("user_id");
-            $url = "https://server.salesdoc.io/api/add/index.php?add=sdmanager&code={$domain}";
+            
+            $appType = "sdmanager";
+            if ($user->isClient()) {
+                $appType = "sdclient";
+            }
+            $url = "https://server.salesdoc.io/api/add/index.php?add={$appType}&code={$domain}";
             $response = Http::get($url);
             if ($response->ok()) {
                 $body = $response->json();
+
+                // we should check if this server is countrysale
+                // and app type is sdclient, so return error
+                if (!empty($body["type"]) && $body["type"] == "countrysale") {
+                    $this->setErrorMessage("This app doesn't have access to countrysale server");
+                    return $this->response(false);
+                }
+                
                 if ($body["status"] === "success") {
                     $model = Domain::where(["domain" => $domain, "user_id" => $user_id])->first();
                     if (is_null($model)) {

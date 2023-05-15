@@ -46,7 +46,7 @@ class DomainController extends ApiController
 
                 // we should check if this server is countrysale
                 // and app type is sdclient, so return error
-                if (!empty($body["type"]) && $body["type"] == "countrysale") {
+                if ((strtolower($type) === "client") && !empty($body["type"]) && $body["type"] == "countrysale") {
                     $this->setErrorMessage("This app doesn't have access to countrysale server");
                     return $this->response(false);
                 }

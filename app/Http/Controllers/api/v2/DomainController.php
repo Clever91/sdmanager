@@ -117,7 +117,7 @@ class DomainController extends ApiController
         ];
         $data["data"] = $request->all();
 
-        $expire_time = 1 * 60 * 60; // 1 hour
+        $expire_time = 24 * 60 * 60; // 24 hour
         $secret_key = env('JWT_SECRET_KEY', "secret");
         $jwt = new JWT($secret_key);
         $jwtToken = $jwt->encode($data, $expire_time);

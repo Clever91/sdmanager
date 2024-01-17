@@ -47,12 +47,3 @@ Route::prefix('v2')->group(function () {
         });
     });
 });
-
-Route::prefix('v3')->group(function () {
-    // guest
-    Route::prefix('user')->group(function () {
-        Route::controller(UserController::class)->group(function () {
-            Route::post("signIn", 'signIn');
-        });
-    });
-});

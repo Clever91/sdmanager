@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->renameColumn('type', 'app_type');
-            $table->dropUnique("users_unique_columns");
+            // $table->renameColumn('type', 'app_type');
+            // $table->dropUnique("users_unique_columns");
             // $table->unique(["phone", "app_type"], 'idx_unique_phone_app_type');
         });
 

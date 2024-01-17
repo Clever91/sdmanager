@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\api\v1;
+namespace App\Http\Controllers\api\v2;
 
+use Http;
 use App\Http\Controllers\base\ApiController;
 use App\Models\Feedback;
-use Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;

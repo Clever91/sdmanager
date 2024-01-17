@@ -1,13 +1,10 @@
 <?php
 
+use App\Http\Controllers\api\v2\SmsController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\api\v1\SignInController;
-use App\Http\Controllers\api\v1\UserController;
-use App\Http\Controllers\api\v1\DashboardController;
-use App\Http\Controllers\api\v1\DomainController;
-use App\Http\Controllers\api\v1\FeedbackController;
-use App\Http\Controllers\api\v2\DomainController as DomainV2Controller;
-use App\Http\Controllers\api\v2\UserController as UserV2Controller;
+use App\Http\Controllers\api\v2\FeedbackController;
+use App\Http\Controllers\api\v2\DomainController;
+use App\Http\Controllers\api\v2\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,54 +17,25 @@ use App\Http\Controllers\api\v2\UserController as UserV2Controller;
 |
 */
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v2')->group(function () {
     // guest
     Route::prefix('user')->group(function () {
         Route::controller(UserController::class)->group(function () {
-            Route::post("signUp", 'create');
-            Route::post("register", 'register');
-            Route::post("exist", 'exist');
+            Route::post("signIn", 'signIn');
+            Route::post("checkCode", 'checkCode');
         });
-        Route::controller(SignInController::class)->group(function () {
-            Route::post("signIn", 'index');
+    });
+    Route::prefix('sms')->group(function () {
+        Route::controller(SmsController::class)->group(function () {
+            Route::post("send", 'send');
         });
     });
     // middleware
     Route::middleware('auth:sanctum')->group(function () {
         Route::controller(UserController::class)->prefix('user')->group(function () {
-            Route::post("password", 'password');
             Route::delete("signOut", 'signOut');
-        });
-        Route::controller(DashboardController::class)->prefix('dashboard')->group(function () {
-            Route::get("", 'index');
         });
         Route::controller(DomainController::class)->prefix('domain')->group(function () {
-            Route::post("add", 'add');
-            Route::get("list", 'list');
-            Route::delete("delete", 'delete');
-            Route::post("refresh/token", 'refreshToken');
-        });
-        Route::controller(FeedbackController::class)->prefix('feedback')->group(function () {
-            Route::post("create", "create");
-            Route::get("list", "list");
-        });
-    });
-});
-
-
-Route::prefix('v2')->group(function () {
-    // guest
-    Route::prefix('user')->group(function () {
-        Route::controller(UserV2Controller::class)->group(function () {
-            Route::post("signIn", 'signIn');
-        });
-    });
-    // middleware
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::controller(UserV2Controller::class)->prefix('user')->group(function () {
-            Route::delete("signOut", 'signOut');
-        });
-        Route::controller(DomainV2Controller::class)->prefix('domain')->group(function () {
             Route::post("add", 'add');
             Route::get("list", 'list');
             Route::delete("delete", 'delete');
@@ -76,6 +44,15 @@ Route::prefix('v2')->group(function () {
         Route::controller(FeedbackController::class)->prefix('feedback')->group(function () {
             Route::post("create", "create");
             Route::get("list", "list");
+        });
+    });
+});
+
+Route::prefix('v3')->group(function () {
+    // guest
+    Route::prefix('user')->group(function () {
+        Route::controller(UserController::class)->group(function () {
+            Route::post("signIn", 'signIn');
         });
     });
 });

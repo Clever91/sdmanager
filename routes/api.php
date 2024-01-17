@@ -21,7 +21,7 @@ Route::prefix('v2')->group(function () {
     // guest
     Route::prefix('user')->group(function () {
         Route::controller(UserController::class)->group(function () {
-            Route::post("signIn", 'signIn');
+            Route::post("signIn", 'signIn'); // kecyinchalik o'chirib tashlash kerak
             Route::post("checkCode", 'checkCode');
         });
     });

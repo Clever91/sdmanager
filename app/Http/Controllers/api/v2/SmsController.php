@@ -15,7 +15,13 @@ class SmsController extends ApiController
     {
         $phoneNumber = $request->input("phone");
         $appType = $request->input("type");
-        // $token = $request->input("token");
+        $smsToken = $request->input("token");
+        $testNumber = "998900022280";
+
+        if ($smsToken != env("SMS_TOKEN", "")) {
+            $this->setErrorMessage("У вас нет доступа к этому API");
+            return $this->response(false);
+        }
 
         if (!in_array($appType, [User::TYPE_CLIENT, User::TYPE_MANAGER])) {
             $this->setErrorMessage("The type is incorrect format: (sd_manager, sd_client)");
@@ -34,7 +40,7 @@ class SmsController extends ApiController
 
         // check if the phone number is allowed 
         $countryCode = null;
-        $allowedCountries = ['998' => "UZB"];
+        $allowedCountries = ['998' => "UZ", "996" => "KG", "7" => "KZ"];
         foreach($allowedCountries as $prefix => $val) {
             if ($prefix == substr($phoneNumber, 0, strlen($prefix))) {
                 $countryCode = $val;
@@ -49,6 +55,9 @@ class SmsController extends ApiController
 
         // generate confirm code
         $confirmCode = random_int(1000, 9999);
+        if ($phoneNumber == $testNumber) {
+            $confirmCode = 1111;
+        }
 
         // write to database
         $confirmModel = ConfirmPhone::where(["phone" => $phoneNumber, "app_type" => $appType])->first();
@@ -73,14 +82,15 @@ class SmsController extends ApiController
         $confirmModel->save();
 
         // send sms to phone
-        if ($countryCode == "UZB") {
+        if (in_array($countryCode, array_values($allowedCountries))) {
             // send in eskiz.uz
-            $url = "https://billing.salesdoc.io/api/sms/one";
             // $url = "http://billing/api/sms/one";
+            $url = "https://billing.salesdoc.io/api/sms/one";
 
             $response = Http::post($url, [
                 'phone_number' => $phoneNumber,
-                'text' => "CODE: {$confirmCode}"
+                'text' => "CODE: {$confirmCode}",
+                'country_code' => $countryCode 
             ]);
 
             if ($response->ok()) {

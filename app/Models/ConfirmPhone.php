@@ -9,7 +9,7 @@ class ConfirmPhone extends Model
 {
     use HasFactory;
 
-    const EXPIRE_TIME = 90; // seconds
+    const EXPIRE_TIME = 180; // seconds
 
     protected $fillable = [
         "phone",

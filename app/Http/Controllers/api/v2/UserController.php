@@ -74,6 +74,12 @@ class UserController extends ApiController
         $phoneNumber = $request->input("phone");
         $code = intval($request->input("code"));
         $appType = $request->input("type");
+        $smsToken = $request->input("token");
+
+        if ($smsToken != env("SMS_TOKEN", "")) {
+            $this->setErrorMessage("Токен доступа недействителен");
+            return $this->response(false);
+        }
 
         if (!in_array($appType, [User::TYPE_CLIENT, User::TYPE_MANAGER])) {
             $this->setErrorMessage("The type is incorrect format: (sd_manager, sd_client)");

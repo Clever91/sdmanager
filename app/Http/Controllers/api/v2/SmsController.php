@@ -16,7 +16,7 @@ class SmsController extends ApiController
         $phoneNumber = $request->input("phone");
         $appType = $request->input("type");
         $smsToken = $request->input("token");
-        $testNumber = "998900022280";
+        $testNumbers = ["998900022280", "998111111111"];
 
         if ($smsToken != env("SMS_TOKEN", "")) {
             $this->setErrorMessage("У вас нет доступа к этому API");
@@ -55,7 +55,7 @@ class SmsController extends ApiController
 
         // generate confirm code
         $confirmCode = random_int(1000, 9999);
-        if ($phoneNumber == $testNumber) {
+        if (in_array($phoneNumber, $testNumbers)) {
             $confirmCode = 1111;
         }
 
@@ -83,6 +83,14 @@ class SmsController extends ApiController
 
         // send sms to phone
         if (in_array($countryCode, array_values($allowedCountries))) {
+
+            // if it is test phone number, don't send sms
+            if ($confirmCode == 1111) {
+                return $this->response(true, [
+                    "phone" => $phoneNumber,
+                    "expire_time" => ConfirmPhone::EXPIRE_TIME
+                ]);
+            }
             // send in eskiz.uz
             // $url = "http://billing/api/sms/one";
             $url = "https://billing.salesdoc.io/api/sms/one";

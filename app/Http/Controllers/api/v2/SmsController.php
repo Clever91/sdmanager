@@ -97,7 +97,7 @@ class SmsController extends ApiController
 
             $response = Http::post($url, [
                 'phone_number' => $phoneNumber,
-                'text' => "CODE: {$confirmCode}",
+                'text' => "Это сообщение было отправлено из приложения SD Manager. Регистрационный код: {$confirmCode}",
                 'country_code' => $countryCode 
             ]);
 

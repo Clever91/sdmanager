@@ -95,9 +95,14 @@ class SmsController extends ApiController
             // $url = "http://billing/api/sms/one";
             $url = "https://billing.salesdoc.io/api/sms/one";
 
+            $smsText = "Это сообщение было отправлено из приложения SD Manager. Регистрационный код: {$confirmCode}";
+            if (in_array($countryCode, ["KG", "KZ"])) {
+                $smsText = "SD Manager регистрационный код: {$confirmCode}";
+            }
+
             $response = Http::post($url, [
                 'phone_number' => $phoneNumber,
-                'text' => "Это сообщение было отправлено из приложения SD Manager. Регистрационный код: {$confirmCode}",
+                'text' => $smsText,
                 'country_code' => $countryCode 
             ]);
 

@@ -32,6 +32,7 @@ class DomainController extends ApiController
             $errorData = [];
             $domain = $request->input("domain");
             $user_id = $request->input("user_id");
+            $jwt_token = $request->input("jwt_token", null);
             
             $appType = "sdmanager";
             if ($user->isClient()) {
@@ -50,6 +51,34 @@ class DomainController extends ApiController
                 }
                 
                 if ($body["status"] === "success") {
+
+                    // checking domain belongs to user
+                    if (!empty($jwt_token)) {
+
+                        // sending checking request 
+                        $sdResponse = Http::withHeaders([
+                            "Authorization" => "Bearer {$jwt_token}"
+                        ])->post("https://{$domain}.salesdoc.io/api3/manager/index", [
+                            "jsonrpc" => "2.0",
+                            "id" => 1111111,
+                            "method" => "checking"
+                        ]);
+
+                        if (!$sdResponse->ok()) {
+                            $this->setErrorMessage("Этот домен не принадлежит этому номеру телефона");
+                            $this->setErrorData($sdResponse->json());
+                            return $this->response(false);
+                        }
+
+                        $sdBody = $sdResponse->json();
+                        if (!empty($sdBody["error"])) {
+                            $this->setErrorMessage("Этот домен не принадлежит этому номеру телефона");
+                            $this->setErrorData($sdResponse->json());
+                            return $this->response(false);
+                        }
+
+                    } 
+
                     $model = Domain::where(["domain" => $domain, "user_id" => $user_id])->first();
                     if (is_null($model)) {
                         $model = Domain::create([

@@ -2,16 +2,23 @@
 
 namespace App\Http\Controllers\api\v2;
 
-use App\Models\ConfirmPhone;
-use Str;
 use Throwable;
+use App\Models\ConfirmPhone;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use App\Http\Controllers\base\ApiController;
 
 class UserController extends ApiController
 {
+    /**
+     * *
+     * @deprecated I think it is not used 
+     *  because we use sms and checkCode instead of this fucntion 
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function signIn(Request $request)
     {
         $jwtToken = $request->input("token");

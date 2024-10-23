@@ -35,7 +35,7 @@ class ApiController extends Controller
 
     public function setErrorData($data)
     {
-        $this->error["message"] = "Request is not valid";
+        $this->error["message"] = $this->error["message"] ?? "Request is not valid";
         $this->error["data"] = $data;
     }
 
